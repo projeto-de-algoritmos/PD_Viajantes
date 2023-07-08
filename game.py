@@ -122,17 +122,25 @@ def game():
                 else:
                     nave.temperatura_atual = planeta.temperatura
 
-        # Renderização do jogo
+        # Colocando imagem de fundo
         screen.blit(imagem_fundo[1], (0,0))
-        screen.blit(time_text, (100, 100))  # Desenhar o texto na tela
+
+        # Colocando o tempo e o retangulo de fundo
+        retangulo_tempo = pygame.Surface((120, 30))
+        retangulo_tempo.fill(BLACK)
+        posicao_texto_tempo = (26, 8)
+        retangulo_tempo.blit(time_text, posicao_texto_tempo)
+        screen.blit(retangulo_tempo, (100, 100))  
+
         # Renderização das temperaturas dos planetas
         all_sprites.draw(screen)
         for planeta in planetas:
-            retangulo_texto = pygame.Surface((100, 40))
+            retangulo_texto = pygame.Surface((80, 30))
             retangulo_texto.fill(BLACK)
             
             texto_temperatura = font.render(str(f'{planeta.temperatura} °C'), True, WHITE)
-            posicao_texto = ((100 - 80) // 2, (40 - 20) // 2)
+           
+            posicao_texto = (28, 10)
             retangulo_texto.blit(texto_temperatura, posicao_texto)
             
             screen.blit(retangulo_texto, (planeta.rect.center))
