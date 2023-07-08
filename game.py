@@ -1,4 +1,5 @@
 import pygame
+import random
 
 # Inicialização do Pygame
 pygame.init()
@@ -14,8 +15,8 @@ def carregar_imagem(arquivo, width, height):
     image_loc = image.get_rect()
     return image_loc, image
 
-imagem_fundo = carregar_imagem("espaco.jpg",528,810)
-screen.blit(imagem_fundo[1], (SCREEN_HEIGHT, SCREEN_WIDTH))
+imagem_fundo = carregar_imagem("espaco.jpg",1280,720)
+
 pygame.display.set_caption("Jogo de Navegação por Planetas")
 
 
@@ -27,16 +28,14 @@ RED = (255, 0, 0)
 
 # Classe Planeta
 class Planeta(pygame.sprite.Sprite):
-    def __init__(self, nome, temperatura, x, y):
+    def __init__(self, nome, temperatura, x, y, n):
         super().__init__()
-        self.rect ,self.image = carregar_imagem("p1.png", 100, 100)
+        self.rect ,self.image = carregar_imagem(f'p{n}.png', 200, 150)
         self.rect.x = x
         self.rect.y = y
         self.nome = nome
         self.temperatura = temperatura
 
-    def update(self):
-        pass
 
 # Classe Nave
 class Nave(pygame.sprite.Sprite):
@@ -52,13 +51,22 @@ class Nave(pygame.sprite.Sprite):
         self.rect.y += direcao_y
 
 # Criação dos planetas
+
+def cria_planeta(n, planetas):
+    if n%2 == 0:
+        x = n * 100 
+        y = n * 150
+    else:
+        x = SCREEN_WIDTH - (n *200)
+        y = SCREEN_HEIGHT - (n * 150)
+
+    planeta = Planeta(f'Planeta{n}', random.randint(0,100), x, y, n)
+    planetas.add(planeta)
+
+
 planetas = pygame.sprite.Group()
-planeta1 = Planeta("Planeta 1", 30, 100, 100)
-planetas.add(planeta1)
-planeta2 = Planeta("Planeta 2", 50, 300, 200)
-planetas.add(planeta2)
-planeta3 = Planeta("Planeta 3", 80, 500, 300)
-planetas.add(planeta3)
+for i in range(1, 8):
+    cria_planeta(i, planetas)
 
 # Criação da nave
 nave = Nave(700, 500)
@@ -72,45 +80,64 @@ all_sprites.add(planetas)
 all_sprites.add(nave)
 
 # Variáveis do jogo
-game_over = False
-ultimo_planeta_temperatura = 0
 
-# Loop principal do jogo
-while not game_over:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
+def game():
+    ultimo_planeta_temperatura = 0
+    game_over = False
+    total_time = 30
+    current_time = 0
+    starting_time = pygame.time.get_ticks()
+    
+    
+    while not game_over:
+        current_time = (pygame.time.get_ticks() - starting_time) / 1000
+        if current_time >= total_time:
+            
             game_over = True
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_LEFT:
-                nave.update(-25, 0)
-            elif event.key == pygame.K_RIGHT:
-                nave.update(25, 0)
-            elif event.key == pygame.K_UP:
-                nave.update(0, -25)
-            elif event.key == pygame.K_DOWN:
-                nave.update(0, 25)
 
-    # Lógica do jogo
+        time_text = font.render("Tempo: {:.1f}".format(current_time), True, RED)
 
-    # verifica se o planeta mais proximo da nave e mais quente que o anterior
-    for planeta in planetas:
-        if nave.rect.colliderect(planeta.rect):
-            if planeta.temperatura < nave.temperatura_atual:
-                print("Nave Explodiu!")
+        
+        
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
                 game_over = True
-            else:
-                nave.temperatura_atual = planeta.temperatura
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    nave.update(-25, 0)
+                elif event.key == pygame.K_RIGHT:
+                    nave.update(25, 0)
+                elif event.key == pygame.K_UP:
+                    nave.update(0, -25)
+                elif event.key == pygame.K_DOWN:
+                    nave.update(0, 25)
 
-    # Renderização do jogo
-    screen.fill(BLACK)
-    all_sprites.draw(screen)
+        # Lógica do jogo
 
-    # Renderização das temperaturas dos planetas
-    for planeta in planetas:
-        texto_temperatura = font.render(str(planeta.temperatura), True, WHITE)
-        screen.blit(texto_temperatura, (planeta.image.get_rect().x, planeta.image.get_rect().y - 20))
+        # verifica se o planeta mais proximo da nave e mais quente que o anterior
+        for planeta in planetas:
+            if nave.rect.colliderect(planeta.rect):
+                if planeta.temperatura < nave.temperatura_atual:
+                    print("Nave Explodiu!")
+                    game_over = True
+                else:
+                    nave.temperatura_atual = planeta.temperatura
 
-    pygame.display.flip()
+        # Renderização do jogo
+        screen.blit(imagem_fundo[1], (0,0))
+        screen.blit(time_text, (100, 100))  # Desenhar o texto na tela
+        # Renderização das temperaturas dos planetas
+        for planeta in planetas:
+            texto_temperatura = font.render(str(planeta.temperatura), True, WHITE)
+            screen.blit(texto_temperatura, (planeta.rect.x + 50, planeta.rect.y + 50))
+        all_sprites.draw(screen)
 
+        pygame.display.flip()
+    # Loop principal do jogo
+
+game()
 # Encerramento do Pygame
+
+
 pygame.quit()
