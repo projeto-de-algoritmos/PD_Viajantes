@@ -50,20 +50,52 @@ class Nave(pygame.sprite.Sprite):
         self.rect.x += direcao_x
         self.rect.y += direcao_y
 
+
+
+def maior_subsequencia_crescente(planetas):
+    if not planetas:
+        return []
+
+    tamanho_lista = len(planetas)
+    vetor = [1] * tamanho_lista  # Inicializa uma lista com todos os elementos como 1
+
+    for i in range(1, tamanho_lista):
+        for j in range(i):
+            if planetas[i].temperatura > planetas[j].temperatura and vetor[i] < vetor[j] + 1:
+                vetor[i] = vetor[j] + 1
+
+    tam_maior_sub = max(vetor)  # Comprimento da maior subsequência crescente
+    max_index = vetor.index(tam_maior_sub)  # Índice do maior elemento na lista vetor
+
+    subsequencia = [planetas[max_index]]  # Inicializa a subsequência com o maior elemento
+    tam_maior_sub -= 1
+
+    for i in range(max_index - 1, -1, -1):
+        if planetas[i] < subsequencia[-1] and vetor[i] == tam_maior_sub:
+            subsequencia.append(planetas[i])
+            tam_maior_sub -= 1
+
+    subsequencia.reverse()  # Inverte a sequência para retornar em ordem crescente
+    return subsequencia
 # Criação dos planetas
 
-
-
 def cria_planeta(n, planetas):
-    parte_width = SCREEN_WIDTH // 3
+    # parte_width = SCREEN_WIDTH // 3
+    # parte_height = SCREEN_HEIGHT // 2
+    parte_width = SCREEN_WIDTH // 16
     parte_height = SCREEN_HEIGHT // 2
+    # coluna = i % 3
+    # linha = i // 3
+    
 
-    coluna = i % 3
-    linha = i // 3
-
-    x = coluna * parte_width + parte_width // 2 - 150  # 25 é a metade da largura do planeta
-    y = linha * parte_height + parte_height // 2 - 25  # 25 é a metade da altura do planeta
-
+    # x = coluna * parte_width + parte_width // 2 - 150  # 25 é a metade da largura do planeta
+    # y = linha * parte_height + parte_height // 2 - 25  # 25 é a metade da altura do planeta
+    x = parte_width + ((i-1) * 150)
+    if (n % 2 == 0):
+       y = parte_height + 110
+    else:
+        y = parte_height
+    
     planeta = Planeta(f'Planeta{n}', random.randint(0,100), x, y, n)
     planetas.add(planeta)
 
@@ -73,7 +105,7 @@ for i in range(1, 8):
     cria_planeta(i, planetas)
 
 # Criação da nave
-nave = Nave(700, 500)
+nave = Nave(200, 200)
 
 # Fonte do texto
 font = pygame.font.Font(None, 24)
