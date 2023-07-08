@@ -30,7 +30,7 @@ RED = (255, 0, 0)
 class Planeta(pygame.sprite.Sprite):
     def __init__(self, nome, temperatura, x, y, n):
         super().__init__()
-        self.rect ,self.image = carregar_imagem(f'p{n}.png', 200, 150)
+        self.rect ,self.image = carregar_imagem(f'p{n}.png', 300, 225)
         self.rect.x = x
         self.rect.y = y
         self.nome = nome
@@ -52,13 +52,17 @@ class Nave(pygame.sprite.Sprite):
 
 # Criação dos planetas
 
+
+
 def cria_planeta(n, planetas):
-    if n%2 == 0:
-        x = n * 100 
-        y = n * 150
-    else:
-        x = SCREEN_WIDTH - (n *200)
-        y = SCREEN_HEIGHT - (n * 150)
+    parte_width = SCREEN_WIDTH // 3
+    parte_height = SCREEN_HEIGHT // 2
+
+    coluna = i % 3
+    linha = i // 3
+
+    x = coluna * parte_width + parte_width // 2 - 150  # 25 é a metade da largura do planeta
+    y = linha * parte_height + parte_height // 2 - 25  # 25 é a metade da altura do planeta
 
     planeta = Planeta(f'Planeta{n}', random.randint(0,100), x, y, n)
     planetas.add(planeta)
@@ -82,7 +86,6 @@ all_sprites.add(nave)
 # Variáveis do jogo
 
 def game():
-    ultimo_planeta_temperatura = 0
     game_over = False
     total_time = 30
     current_time = 0
@@ -97,9 +100,6 @@ def game():
 
         time_text = font.render("Tempo: {:.1f}".format(current_time), True, RED)
 
-        
-        
-
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game_over = True
@@ -112,8 +112,6 @@ def game():
                     nave.update(0, -25)
                 elif event.key == pygame.K_DOWN:
                     nave.update(0, 25)
-
-        # Lógica do jogo
 
         # verifica se o planeta mais proximo da nave e mais quente que o anterior
         for planeta in planetas:
@@ -128,13 +126,18 @@ def game():
         screen.blit(imagem_fundo[1], (0,0))
         screen.blit(time_text, (100, 100))  # Desenhar o texto na tela
         # Renderização das temperaturas dos planetas
-        for planeta in planetas:
-            texto_temperatura = font.render(str(planeta.temperatura), True, WHITE)
-            screen.blit(texto_temperatura, (planeta.rect.x + 50, planeta.rect.y + 50))
         all_sprites.draw(screen)
+        for planeta in planetas:
+            retangulo_texto = pygame.Surface((100, 40))
+            retangulo_texto.fill(BLACK)
+            
+            texto_temperatura = font.render(str(f'{planeta.temperatura} °C'), True, WHITE)
+            posicao_texto = ((100 - 80) // 2, (40 - 20) // 2)
+            retangulo_texto.blit(texto_temperatura, posicao_texto)
+            
+            screen.blit(retangulo_texto, (planeta.rect.center))
 
         pygame.display.flip()
-    # Loop principal do jogo
 
 game()
 # Encerramento do Pygame
