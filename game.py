@@ -20,7 +20,6 @@ imagem_fundo = carregar_imagem("espaco.jpg",1280,720)
 pygame.display.set_caption("Jogo de Navegação por Planetas")
 
 
-
 # Cores
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
@@ -30,21 +29,20 @@ RED = (255, 0, 0)
 class Planeta(pygame.sprite.Sprite):
     def __init__(self, nome, temperatura, x, y, n):
         super().__init__()
-        self.rect ,self.image = carregar_imagem(f'p{n}.png', 300, 225)
+        self.rect ,self.image = carregar_imagem(f'p{n}.png', 150, 100)
         self.rect.x = x
         self.rect.y = y
         self.nome = nome
         self.temperatura = temperatura
         self.selecionado = False
     
-    def selecionar(self, surface):
+    def destacar(self):
         if self.selecionado:
             # Desenha a borda do retângulo com a cor especificada
-            pygame.draw.rect(surface, RED, self.rect, 2)
+            pygame.draw.rect(screen, RED, self.rect, 2)
 
         # Copia a imagem do planeta na superfície
-        surface.blit(self.image, self.rect.topleft)
-
+        screen.blit(self.image, self.rect.topleft)
 
 # Classe Nave
 class Nave(pygame.sprite.Sprite):
@@ -58,7 +56,6 @@ class Nave(pygame.sprite.Sprite):
     def update(self, direcao_x, direcao_y):
         self.rect.x += direcao_x
         self.rect.y += direcao_y
-
 
 
 def maior_subsequencia_crescente(planetas):
@@ -86,19 +83,12 @@ def maior_subsequencia_crescente(planetas):
 
     subsequencia.reverse()  # Inverte a sequência para retornar em ordem crescente
     return subsequencia
-# Criação dos planetas
 
+# Criação dos planetas
 def cria_planeta(n, planetas):
-    # parte_width = SCREEN_WIDTH // 3
-    # parte_height = SCREEN_HEIGHT // 2
     parte_width = SCREEN_WIDTH // 16
     parte_height = SCREEN_HEIGHT // 2
-    # coluna = i % 3
-    # linha = i // 3
     
-
-    # x = coluna * parte_width + parte_width // 2 - 150  # 25 é a metade da largura do planeta
-    # y = linha * parte_height + parte_height // 2 - 25  # 25 é a metade da altura do planeta
     x = parte_width + ((i-1) * 150)
     if (n % 2 == 0):
        y = parte_height + 110
@@ -108,6 +98,18 @@ def cria_planeta(n, planetas):
     planeta = Planeta(f'Planeta{n}', random.randint(0,100), x, y, n)
     planetas.add(planeta)
 
+# Função para verificar os cliques nos planetas
+def verificar_cliques(event, planetas):
+    if event.button == 1:  # Botão esquerdo do mouse
+        pos = pygame.mouse.get_pos()
+        for planeta in planetas:
+            if planeta.rect.collidepoint(pos):
+                planeta.selecionado = not planeta.selecionado  # Inverte o status de seleção do planeta
+
+def destacar_planetas_selecionados(planetas):
+    for planeta in planetas:
+        if planeta.selecionado:
+            planeta.destacar()
 
 planetas = pygame.sprite.Group()
 for i in range(1, 8):
@@ -144,17 +146,14 @@ def game():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 game_over = True
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
-                    nave.update(-25, 0)
-                elif event.key == pygame.K_RIGHT:
-                    nave.update(25, 0)
-                elif event.key == pygame.K_UP:
-                    nave.update(0, -25)
-                elif event.key == pygame.K_DOWN:
-                    nave.update(0, 25)
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                verificar_cliques(event, planetas)
 
-        # verifica se o planeta mais proximo da nave e mais quente que o anterior
+        # Colocando imagem de fundo
+        screen.blit(imagem_fundo[1], (0,0))
+        
+        destacar_planetas_selecionados(planetas)
+
         for planeta in planetas:
             if nave.rect.colliderect(planeta.rect):
                 if planeta.temperatura < nave.temperatura_atual:
@@ -162,14 +161,6 @@ def game():
                     game_over = True
                 else:
                     nave.temperatura_atual = planeta.temperatura
-            for event in pygame.event.get(): 
-                if event.type == pygame.MOUSEBUTTONDOWN:
-                    if planeta.rect.collidepoint(event.pos):
-                        planeta.selecionado = not planeta.selecionado
-                        planeta.desenhar(screen)
-
-        # Colocando imagem de fundo
-        screen.blit(imagem_fundo[1], (0,0))
 
         # Colocando o tempo e o retangulo de fundo
         retangulo_tempo = pygame.Surface((120, 30))
@@ -181,6 +172,7 @@ def game():
         # Renderização das temperaturas dos planetas
         all_sprites.draw(screen)
         for planeta in planetas:
+            planeta.destacar()
             retangulo_texto = pygame.Surface((80, 30))
             retangulo_texto.fill(BLACK)
             
