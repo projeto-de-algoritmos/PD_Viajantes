@@ -35,6 +35,15 @@ class Planeta(pygame.sprite.Sprite):
         self.rect.y = y
         self.nome = nome
         self.temperatura = temperatura
+        self.selecionado = False
+    
+    def selecionar(self, surface):
+        if self.selecionado:
+            # Desenha a borda do retângulo com a cor especificada
+            pygame.draw.rect(surface, RED, self.rect, 2)
+
+        # Copia a imagem do planeta na superfície
+        surface.blit(self.image, self.rect.topleft)
 
 
 # Classe Nave
@@ -65,13 +74,13 @@ def maior_subsequencia_crescente(planetas):
                 vetor[i] = vetor[j] + 1
 
     tam_maior_sub = max(vetor)  # Comprimento da maior subsequência crescente
-    max_index = vetor.index(tam_maior_sub)  # Índice do maior elemento na lista vetor
+    indice_maior_elem = vetor.index(tam_maior_sub)  # Índice do maior elemento na lista vetor
 
-    subsequencia = [planetas[max_index]]  # Inicializa a subsequência com o maior elemento
+    subsequencia = [planetas[indice_maior_elem]]  # Inicializa a subsequência com o maior elemento
     tam_maior_sub -= 1
 
-    for i in range(max_index - 1, -1, -1):
-        if planetas[i] < subsequencia[-1] and vetor[i] == tam_maior_sub:
+    for i in range(indice_maior_elem - 1, -1, -1):
+        if planetas[i].temperatura < subsequencia[-1].temperatura and vetor[i] == tam_maior_sub:
             subsequencia.append(planetas[i])
             tam_maior_sub -= 1
 
@@ -153,6 +162,11 @@ def game():
                     game_over = True
                 else:
                     nave.temperatura_atual = planeta.temperatura
+            for event in pygame.event.get(): 
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    if planeta.rect.collidepoint(event.pos):
+                        planeta.selecionado = not planeta.selecionado
+                        planeta.desenhar(screen)
 
         # Colocando imagem de fundo
         screen.blit(imagem_fundo[1], (0,0))
