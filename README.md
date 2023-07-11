@@ -16,18 +16,22 @@
 Exemplo: Os viajantes estão com a antimatéria a 1 grau celsius e vão para um planeta que está fazendo 9 graus, então a nave fica a 9 graus enquanto está no planeta. Ao sair do primeiro planeta para ir para o segundo, a nave deve passar pelo vácuo, que está a -270 graus celsius, então o dispositivo deve manter a antimatéria a 9 graus, gastando combustível. O próximo planeta a ser visitado deve ter uma temperatura maior ou igual a 9, para que não haja gasto excessivo de combustível quando estiverem transitando dentro do planeta. 
 
 ## Screenshots
-Adicione 3 ou mais screenshots do projeto em funcionamento.
+![image](https://github.com/projeto-de-algoritmos/PD_Viajantes/assets/57496213/a9bb3e29-4b4f-4756-807c-a6645605a530)
+![image](https://github.com/projeto-de-algoritmos/PD_Viajantes/assets/57496213/ccfd1330-42a8-440e-814d-2e756aac5afe)
+![image](https://github.com/projeto-de-algoritmos/PD_Viajantes/assets/57496213/13639cb5-6c27-4091-b660-2e012d25ed60)
+
 
 ## Instalação 
-**Linguagem**: xxxxxx<br>
-**Framework**: (caso exista)<br>
-Descreva os pré-requisitos para rodar o seu projeto e os comandos necessários.
+**Linguagem**: Python 3<br>
+**Biblioteca**: Pygame<br>
+É necessário ter Python 3 instalado no seu computador, o tutorial completo para instalar no Windows, MACOS e Linux pode ser encontrado [aqui](https://realpython.com/installing-python/)
+
+Para instalar o Pygame, basta seguir o tutorial oficial da biblioteca, que pode ser encontrado [aqui](https://www.pygame.org/wiki/GettingStarted) 
 
 ## Uso 
-Explique como usar seu projeto caso haja algum passo a passo após o comando de execução.
+Para executar o jogo, basta rodar o comando ```python3 game.py```
 
-## Outros 
-Quaisquer outras informações sobre seu projeto podem ser descritas abaixo.
+
 
 
 
