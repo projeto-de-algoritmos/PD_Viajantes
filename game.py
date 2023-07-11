@@ -115,18 +115,22 @@ def cria_planeta(n, planetas):
     planetas.add(planeta)
 
 # Função para verificar os cliques nos planetas
-def verificar_cliques(event, planetas, nave):
+def verificar_cliques(event, planetas):
     if event.button == 1:  # Botão esquerdo do mouse
         pos = pygame.mouse.get_pos()
         for planeta in planetas:
             if planeta.rect.collidepoint(pos):
                 planeta.selecionado = not planeta.selecionado
-                nave.planetas_selecionados.append(planeta)
-
+    
 def destacar_planetas_selecionados(planetas):
     for planeta in planetas:
         if planeta.selecionado:
             planeta.destacar()
+
+def monta_rota(planetas, nave):
+    planetas_lista = list(planetas)
+    nave.planetas_selecionados = [i for i in planetas_lista if i.selecionado]
+    nave.planetas_selecionados.sort(key=lambda x: x.nome)
 
 planetas = pygame.sprite.Group()
 for i in range(1, 8):
@@ -146,8 +150,7 @@ def game():
     total_time = 10
     current_time = 0
     starting_time = pygame.time.get_ticks()
-    nave = Nave(0, 0)
-    
+    nave = Nave(0, 0)    
     
     while not game_over:
         current_time = (pygame.time.get_ticks() - starting_time) / 1000
@@ -161,7 +164,7 @@ def game():
             if event.type == pygame.QUIT:
                 game_over = True
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                verificar_cliques(event, planetas, nave)
+                verificar_cliques(event, planetas)
 
         # Colocando imagem de fundo
         screen.blit(imagem_fundo[1], (0,0))
@@ -193,6 +196,8 @@ def game():
 
 def viagem(nave):
     game_over = False
+
+    monta_rota(planetas, nave)
 
     while not game_over:
         for event in pygame.event.get():
