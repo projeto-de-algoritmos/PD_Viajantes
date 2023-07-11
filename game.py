@@ -25,6 +25,7 @@ pygame.display.set_caption("Jogo de Navegação por Planetas")
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 RED = (255, 0, 0)
+GREEN = (124,252,0)
 
 # Classe Planeta
 class Planeta(pygame.sprite.Sprite):
@@ -125,6 +126,8 @@ def verificar_cliques(event, planetas):
                 planeta.selecionado = not planeta.selecionado
     
 def destacar_planetas_selecionados(planetas):
+    
+
     for planeta in planetas:
         if planeta.selecionado:
             planeta.destacar()
@@ -134,10 +137,20 @@ def monta_rota(planetas, nave):
     nave.planetas_selecionados = [i for i in planetas_lista if i.selecionado]
     nave.planetas_selecionados.sort(key=lambda x: x.nome)
 
-def desenha_planetas(planetas):
+def desenha_planetas(planetas, fim_de_jogo):
         # Colocando imagem de fundo
         screen.blit(imagem_fundo[1], (0,0))
         all_sprites.draw(screen)
+        if fim_de_jogo == True:
+            mensagem = pygame.Rect((SCREEN_WIDTH/3), (SCREEN_HEIGHT/3), 300, 50)
+            texto = font.render("Esta é a solução ideal", True, GREEN)
+            mensagem_texto = texto.get_rect(center=mensagem.center)
+
+            # texto = font.render("Esta é a solução ideal", True, RED)
+            # mensagem = texto.get_rect(center=(SCREEN_WIDTH/2, SCREEN_HEIGHT * 0.2))
+            pygame.draw.rect(screen, BLACK, mensagem)
+            screen.blit(texto, mensagem_texto)
+        
         for planeta in planetas:
             planeta.destacar()
             retangulo_texto = pygame.Surface((80, 30))
@@ -173,6 +186,7 @@ def game():
     while not game_over:
         current_time = (pygame.time.get_ticks() - starting_time) / 1000
         if current_time >= total_time:
+            
             game_over = True
             viagem(nave, planetas)
             melhor_rota(planetas)
@@ -185,13 +199,12 @@ def game():
             elif event.type == pygame.MOUSEBUTTONDOWN:
                 verificar_cliques(event, planetas)
 
-        # Colocando imagem de fundo
-        #screen.blit(imagem_fundo[1], (0,0))
+        
         
         destacar_planetas_selecionados(planetas)
         
         # Renderização das temperaturas dos planetas
-        desenha_planetas(planetas)
+        desenha_planetas(planetas, False)
 
         # Colocando o tempo e o retangulo de fundo
         retangulo_tempo = pygame.Surface((120, 30))
@@ -214,16 +227,18 @@ def viagem(nave, planetas):
 
         game_over = nave.update()
         time.sleep(2)
-        desenha_planetas(planetas)
+        desenha_planetas(planetas, False)
         screen.blit(nave.image, nave.rect.topleft)
         pygame.display.flip()
 
 def melhor_rota(planetas):
+    
     planetas = maior_subsequencia_crescente(list(planetas))
 
-    desenha_planetas(planetas)
+    desenha_planetas(planetas, True)
     pygame.display.flip()
-    time.sleep(5)
+    
+    time.sleep(10)
     
 
 game()
