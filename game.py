@@ -65,7 +65,9 @@ class Nave(pygame.sprite.Sprite):
 
         if self.rect.colliderect(planeta_atual.rect):
             if planeta_atual.temperatura < self.temperatura_atual:
-                print("Nave Explodiu!")
+                self.rect,self.image = carregar_imagem("explosao.png", 150, 100)
+                self.rect.x += (planeta_atual.rect.x - self.rect.x)
+                self.rect.y += (planeta_atual.rect.y - self.rect.y)
                 self.planetas_selecionados = []
             else:
                 self.temperatura_atual = planeta_atual.temperatura
@@ -105,7 +107,7 @@ def cria_planeta(n, planetas):
     parte_width = SCREEN_WIDTH // 16
     parte_height = SCREEN_HEIGHT // 2
     
-    x = parte_width + ((i-1) * 150)
+    x = parte_width + ((n-1) * 150)
     if (n % 2 == 0):
        y = parte_height + 110
     else:
@@ -132,53 +134,9 @@ def monta_rota(planetas, nave):
     nave.planetas_selecionados = [i for i in planetas_lista if i.selecionado]
     nave.planetas_selecionados.sort(key=lambda x: x.nome)
 
-planetas = pygame.sprite.Group()
-for i in range(1, 8):
-    cria_planeta(i, planetas)
-
-# Fonte do texto
-font = pygame.font.Font(None, 24)
-
-# Grupo de sprites
-all_sprites = pygame.sprite.Group()
-all_sprites.add(planetas)
-
-# Variáveis do jogo
-
-def game():
-    game_over = False
-    total_time = 10
-    current_time = 0
-    starting_time = pygame.time.get_ticks()
-    nave = Nave(0, 0)    
-    
-    while not game_over:
-        current_time = (pygame.time.get_ticks() - starting_time) / 1000
-        if current_time >= total_time:
-            game_over = True
-            viagem(nave)
-
-        time_text = font.render("Tempo: {:.1f}".format(current_time), True, RED)
-
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                game_over = True
-            elif event.type == pygame.MOUSEBUTTONDOWN:
-                verificar_cliques(event, planetas)
-
+def desenha_planetas(planetas):
         # Colocando imagem de fundo
         screen.blit(imagem_fundo[1], (0,0))
-        
-        destacar_planetas_selecionados(planetas)
-
-        # Colocando o tempo e o retangulo de fundo
-        retangulo_tempo = pygame.Surface((120, 30))
-        retangulo_tempo.fill(BLACK)
-        posicao_texto_tempo = (26, 8)
-        retangulo_tempo.blit(time_text, posicao_texto_tempo)
-        screen.blit(retangulo_tempo, (100, 100))  
-
-        # Renderização das temperaturas dos planetas
         all_sprites.draw(screen)
         for planeta in planetas:
             planeta.destacar()
@@ -192,9 +150,59 @@ def game():
             
             screen.blit(retangulo_texto, (planeta.rect.center))
 
+# Fonte do texto
+font = pygame.font.Font(None, 24)
+
+# Grupo de sprites
+all_sprites = pygame.sprite.Group()
+
+
+def game():
+    # Variáveis do jogo
+    game_over = False
+    total_time = 10
+    current_time = 0
+    starting_time = pygame.time.get_ticks()
+    nave = Nave(0, 0) 
+
+    # Criação dos planetas
+    planetas = pygame.sprite.Group()
+    for i in range(1, 8):
+        cria_planeta(i, planetas)
+    
+    while not game_over:
+        current_time = (pygame.time.get_ticks() - starting_time) / 1000
+        if current_time >= total_time:
+            game_over = True
+            viagem(nave, planetas)
+            melhor_rota(planetas)
+
+        time_text = font.render("Tempo: {:.1f}".format(current_time), True, RED)
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                game_over = True
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                verificar_cliques(event, planetas)
+
+        # Colocando imagem de fundo
+        #screen.blit(imagem_fundo[1], (0,0))
+        
+        destacar_planetas_selecionados(planetas)
+        
+        # Renderização das temperaturas dos planetas
+        desenha_planetas(planetas)
+
+        # Colocando o tempo e o retangulo de fundo
+        retangulo_tempo = pygame.Surface((120, 30))
+        retangulo_tempo.fill(BLACK)
+        posicao_texto_tempo = (26, 8)
+        retangulo_tempo.blit(time_text, posicao_texto_tempo)
+        screen.blit(retangulo_tempo, (100, 100))  
+
         pygame.display.flip()
 
-def viagem(nave):
+def viagem(nave, planetas):
     game_over = False
 
     monta_rota(planetas, nave)
@@ -206,25 +214,17 @@ def viagem(nave):
 
         game_over = nave.update()
         time.sleep(2)
-    
-        # Colocando imagem de fundo
-        screen.blit(imagem_fundo[1], (0,0))
-        all_sprites.draw(screen)
-        for planeta in planetas:
-            planeta.destacar()
-            retangulo_texto = pygame.Surface((80, 30))
-            retangulo_texto.fill(BLACK)
-            
-            texto_temperatura = font.render(str(f'{planeta.temperatura} °C'), True, WHITE)
-           
-            posicao_texto = (28, 10)
-            retangulo_texto.blit(texto_temperatura, posicao_texto)
-            
-            screen.blit(retangulo_texto, (planeta.rect.center))
-        
+        desenha_planetas(planetas)
         screen.blit(nave.image, nave.rect.topleft)
         pygame.display.flip()
 
+def melhor_rota(planetas):
+    planetas = maior_subsequencia_crescente(list(planetas))
+
+    desenha_planetas(planetas)
+    pygame.display.flip()
+    time.sleep(5)
+    
 
 game()
 # Encerramento do Pygame
